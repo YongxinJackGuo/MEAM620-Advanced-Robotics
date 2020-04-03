@@ -1,0 +1,2 @@
+The code provided in the packet often relies on other python modules that you will need to install. A standard practice in python is to capture package information and dependencies in a
+setup.py file, which often resides in the root of the package directory, and can be used to automatically install all additional required modules. To do this, open a terminal at the root of your project packet (the directory containing setup.py) and execute pip install -e . (notice the period at the end of the command).
