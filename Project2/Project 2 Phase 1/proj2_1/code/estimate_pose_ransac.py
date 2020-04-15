@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from scipy.linalg import lstsq
 
 
 # %%
@@ -86,5 +87,41 @@ def solve_w_t(uvd1, uvd2, R0):
     """
 
     # TODO Your code here replace the dummy return value with a value you compute
-    w = t = np.zeros((3,1))
+
+    # Initialize matrix a_1 with dimension of (2*n) by (3*n) and a_2 with dim of (3*n) by 6
+    n = uvd1.shape[1] # get number of correspondences
+    a_1 = np.zeros((2 * n, 3 * n))
+    a_2 = np.zeros((3 * n, 6))
+
+    # Initialize column vector of b with dim of 2*n
+    b = np.zeros((2 * n, 1))
+
+    for corr in range(n):
+        # compute y matrix
+        y = R0.as_matrix() @ np.array([uvd2[0, corr], uvd2[1, corr], 1]).reshape(3, 1)
+        # compute b column vector for each correspondence
+        b_corr = -1 * np.array([[1, 0, -uvd1[0, corr]], [0, 1, -uvd1[1, corr]]]) @ y
+
+        # construct the big matrix a_1, a_2 and b
+        a_1[corr * 2: corr * 2 + 2, corr * 3: corr * 3 + 3] = np.array([[1, 0, -uvd1[0, corr]],
+                                                                        [0, 1, -uvd1[1, corr]]])
+        a_2[corr * 3: corr * 3 + 3, :] = np.array([ [0, y[2], -y[1], uvd2[2, corr], 0, 0],
+                                                    [-y[2], 0, y[0], 0, uvd2[2, corr], 0],
+                                                    [y[1], -y[0], 0, 0, 0, uvd2[2, corr]] ])
+        b[corr * 2: corr * 2 + 2] = b_corr
+
+    # compute the big A matrix
+    a = a_1 @ a_2
+
+    # compute lease square fit
+    sol, _, _, _ = lstsq(a, b)
+
+    # extract w and t from solution
+    sol = sol.reshape(6, 1)
+    w = sol[:3]
+    t = sol[3:]
+    # print('w: ', w, '#### t: ', t)
+    print("----")
+    print(a_1)
+
     return w, t
