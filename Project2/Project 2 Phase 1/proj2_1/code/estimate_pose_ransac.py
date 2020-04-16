@@ -3,6 +3,8 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.linalg import lstsq
+from numpy.linalg import norm
+
 
 
 # %%
@@ -58,7 +60,6 @@ def ransac_pose(uvd1, uvd2, R, ransac_iterations, ransac_threshold):
 
 def find_inliers(w, t, uvd1, uvd2, R0, threshold):
     """
-
     find_inliers core routine used to detect which correspondences are inliers
 
     :param w: ndarray with 3 entries angular velocity vector in radians/sec
@@ -70,11 +71,31 @@ def find_inliers(w, t, uvd1, uvd2, R0, threshold):
     :return: ndarray with n boolean entries : Only True for correspondences that pass the test
     """
 
-
     n = uvd1.shape[1]
-
     # TODO Your code here replace the dummy return value with a value you compute
-    return np.zeros(n, dtype='bool')
+
+    # initialize indicator
+    indicator = np.zeros(n, dtype='bool')
+    # concatenate w and t
+    x = np.concatenate((w.reshape(3, 1), t.reshape(3, 1)), axis=0)
+
+    for corr in range(n):
+        a_1 =  np.array([ [1, 0, -uvd1[0, corr]], [0, 1, -uvd1[1, corr]] ])
+        # compute y matrix
+        y = R0.as_matrix() @ np.array([uvd2[0, corr], uvd2[1, corr], 1]).reshape(3, 1)
+        a_2 = np.array([ [0, y[2], -y[1], uvd2[2, corr], 0, 0],
+                         [-y[2], 0, y[0], 0, uvd2[2, corr], 0],
+                         [y[1], -y[0], 0, 0, 0, uvd2[2, corr]] ])
+        b_corr = np.array([[1, 0, -uvd1[0, corr]], [0, 1, -uvd1[1, corr]]]) @ y
+
+        # compute discrepancy
+        delta = (a_1 @ a_2 @ x) + b_corr
+
+        # compute norm of delta and compare with threshold
+        delta = norm(delta)
+        if delta < threshold: indicator[corr] = True
+
+    return indicator
 
 def solve_w_t(uvd1, uvd2, R0):
     """
@@ -120,8 +141,5 @@ def solve_w_t(uvd1, uvd2, R0):
     sol = sol.reshape(6, 1)
     w = sol[:3]
     t = sol[3:]
-    # print('w: ', w, '#### t: ', t)
-    print("----")
-    print(a_1)
 
     return w, t

@@ -110,21 +110,21 @@ class TestBase(unittest.TestCase):
     def test_solve_w_t_04(self):
         self.solve_w_t_test('test_solve_w_t_04.json')
 
-    # # test find_inliers
-    # def test_find_inliers_00(self):
-    #     self.find_inliers_test('test_find_inliers_00.json')
-    #
-    # def test_find_inliers_01(self):
-    #     self.find_inliers_test('test_find_inliers_01.json')
-    #
-    # def test_find_inliers_02(self):
-    #     self.find_inliers_test('test_find_inliers_02.json')
-    #
-    # def test_find_inliers_03(self):
-    #     self.find_inliers_test('test_find_inliers_03.json')
-    #
-    # def test_find_inliers_04(self):
-    #     self.find_inliers_test('test_find_inliers_04.json')
+    # test find_inliers
+    def test_find_inliers_00(self):
+        self.find_inliers_test('test_find_inliers_00.json')
+
+    def test_find_inliers_01(self):
+        self.find_inliers_test('test_find_inliers_01.json')
+
+    def test_find_inliers_02(self):
+        self.find_inliers_test('test_find_inliers_02.json')
+
+    def test_find_inliers_03(self):
+        self.find_inliers_test('test_find_inliers_03.json')
+
+    def test_find_inliers_04(self):
+        self.find_inliers_test('test_find_inliers_04.json')
 
 
 if __name__ == '__main__':
